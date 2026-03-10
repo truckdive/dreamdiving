@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>truckdive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #faf8f5;
+      --soft-white: #ffffff;
+      --blush: #f5e6e8;
+      --rose: #d4a0a7;
+      --muted-rose: #c08a92;
+      --dusty-blue: #b8c9d9;
+      --sage: #b8c4b8;
+      --text-dark: #3a3035;
+      --text-mid: #6b5c62;
+      --text-light: #9e8e94;
+      --border: #e8dde0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--cream);
+      color: var(--text-dark);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 배경 장식 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(circle, rgba(212,160,167,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -10%;
+      left: -10%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(184,201,217,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── 이름 입력 화면 ── */
+    #name-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    #name-screen.hide {
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
+    }
+
+    .name-box {
+      text-align: center;
+      padding: 3rem 2.5rem;
+      max-width: 420px;
+      width: 90%;
+    }
+
+    .site-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      color: var(--text-dark);
+      margin-bottom: 0.3rem;
+    }
+    .site-title em {
+      font-style: italic;
+      color: var(--muted-rose);
+    }
+
+    .site-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      color: var(--text-light);
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--rose);
+      margin: 0 auto 2rem;
+      opacity: 0.6;
+    }
+
+    .name-prompt {
+      font-size: 0.85rem;
+      color: var(--text-mid);
+      margin-bottom: 1.2rem;
+      line-height: 1.8;
+    }
+
+    .name-input-wrap {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .name-input-wrap input {
+      width: 100%;
+      border: none;
+      border-bottom: 1.5px solid var(--border);
+      background: transparent;
+      padding: 0.6rem 0.2rem;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 1rem;
+      color: var(--text-dark);
+      text-align: center;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .name-input-wrap input:focus {
+      border-bottom-color: var(--rose);
+    }
+    .name-input-wrap input::placeholder {
+      color: var(--text-light);
+      font-size: 0.85rem;
+    }
+
+    .name-hint {
+      font-size: 0.72rem;
+      color: var(--text-light);
+      margin-bottom: 2rem;
+    }
+
+    .btn-enter {
+      display: inline-block;
+      padding: 0.75rem 2.5rem;
+      border: 1px solid var(--rose);
+      background: transparent;
+      color: var(--muted-rose);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+    .btn-enter:hover {
+      background: var(--rose);
+      color: white;
+    }
+
+    /* ── 메인 화면 ── */
+    #main-screen {
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      padding: 3rem 1.5rem 5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    #main-screen.show { opacity: 1; }
+
+    .main-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .main-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: var(--text-dark);
+    }
+    .main-title em { font-style: italic; color: var(--muted-rose); }
+    .greeting {
+      font-size: 0.82rem;
+      color: var(--text-light);
+      margin-top: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+    .greeting span {
+      color: var(--muted-rose);
+      font-weight: 400;
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    /* ── 캐릭터 카드 그리드 ── */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 3rem;
+    }
+
+    .char-card {
+      background: var(--soft-white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 1.8rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: block;
+    }
+    .char-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--rose), var(--dusty-blue));
+      transform: scaleX(0);
+      transition: transform 0.35s ease;
+      transform-origin: left;
+    }
+    .char-card:hover {
+      border-color: var(--rose);
+      box-shadow: 0 8px 30px rgba(212,160,167,0.15);
+      transform: translateY(-3px);
+    }
+    .char-card:hover::before { transform: scaleX(1); }
+
+    .char-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: var(--text-light);
+      margin-bottom: 0.8rem;
+    }
+    .char-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      color: var(--text-dark);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.05em;
+    }
+    .char-title {
+      font-size: 0.72rem;
+      color: var(--rose);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+    .char-desc {
+      font-size: 0.8rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+    .char-arrow {
+      position: absolute;
+      bottom: 1.2rem;
+      right: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--border);
+      transition: color 0.3s, transform 0.3s;
+    }
+    .char-card:hover .char-arrow {
+      color: var(--rose);
+      transform: translateX(4px);
+    }
+
+    /* 미공개 카드 */
+    .char-card.locked {
+      opacity: 0.5;
+      cursor: default;
+      pointer-events: none;
+    }
+    .char-card.locked::after {
+      content: '···';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--text-light);
+      letter-spacing: 0.3em;
+    }
+
+    /* ── 하단 링크 ── */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .footer-links a {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--muted-rose); }
+
+    /* 팝업 알림 (나중에 활성화될 것) */
+    #popup-notif {
+      display: none;
+      position: fixed;
+      top: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      padding: 0.8rem 1.2rem;
+      z-index: 200;
+      cursor: pointer;
+      max-width: 340px;
+      width: 90%;
+      animation: slideDown 0.4s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .popup-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .popup-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blush), var(--dusty-blue));
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      color: var(--muted-rose);
+    }
+    .popup-text { flex: 1; }
+    .popup-sender {
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--text-dark);
+    }
+    .popup-msg {
+      font-size: 0.73rem;
+      color: var(--text-mid);
+      margin-top: 0.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    /* 날짜 표시 */
+    .day-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--blush);
+      border-radius: 20px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.72rem;
+      color: var(--muted-rose);
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+    }
+    .day-badge::before {
+      content: '◇';
+      font-size: 0.6rem;
+    }
+
+    @media (max-width: 480px) {
+      .char-grid { grid-template-columns: 1fr; }
+      .main-title { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 이름 입력 화면 -->
+<div id="name-screen">
+  <div class="name-box">
+    <h1 class="site-title">Truckdive</h1>
+    <p class="site-sub">for dream</p>
+    <div class="divider"></div>
+    <p class="name-prompt">당신의 이름을 알려주세요.<br>이곳에서는 당신을 그 이름으로 부를게요.</p>
+    <div class="name-input-wrap">
+      <input type="text" id="player-name-input" placeholder="이름을 입력하세요" maxlength="10" />
+    </div>
+    <p class="name-hint">* 언제든지 설정에서 변경할 수 있어요</p>
+    <button class="btn-enter" onclick="enterSite()">Enter</button>
+  </div>
+</div>
+
+<!-- 팝업 알림 (캐릭터가 먼저 메시지 보낼 때) -->
+<div id="popup-notif" onclick="goToChat(popupTarget)">
+  <div class="popup-inner">
+    <div class="popup-avatar" id="popup-avatar">·</div>
+    <div class="popup-text">
+      <div class="popup-sender" id="popup-sender"></div>
+      <div class="popup-msg" id="popup-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 메인 화면 -->
+<div id="main-screen">
+  <div class="main-header">
+    <div style="text-align:center; margin-bottom:1rem;">
+      <span class="day-badge" id="day-badge">첫 번째 방문</span>
+    </div>
+    <h1 class="main-title">Truckdive</h1>
+    <p class="greeting" id="greeting-text">어서 와요, <span id="display-name">특기생</span>.</p>
+  </div>
+
+  <p class="section-label">— characters —</p>
+
+  <div class="char-grid">
+    <!-- 캐릭터 1 -->
+    <a class="char-card" href="chat-ren.html">
+      <div class="char-number">No. 01</div>
+      <div class="char-name">Ren</div>
+      <div class="char-title">학생회장</div>
+      <div class="char-desc">차갑고 단정한 말투 뒤에<br>무언가를 숨기고 있는 것 같은 사람.</div>
+      <span class="char-arrow">→</span>
+    </a>
+
+    <!-- 캐릭터 2 -->
+    <a class="char-card" href="chat-kai.html">
+      <div class="char-number">No. 02</div>
+      <div class="char-name">Kai</div>
+      <div class="char-title">오컬트 연구회</div>
+      <div class="char-desc">눈이 마주칠 때마다 웃는데,<br>그 웃음이 어딘가 위험해 보인다.</div>
+      <span class="char-arrow">→</span>
+    </a>
+
+    <!-- 캐릭터 3 -->
+    <a class="char-card" href="chat-sol.html">
+      <div class="char-number">No. 03</div>
+      <div class="char-name">Sol</div>
+      <div class="char-title">도서관 사서</div>
+      <div class="char-desc">조용한 목소리로 뜻밖의 말을 건네는.<br>책 속에서 살고 있는 것 같은 사람.</div>
+      <span class="char-arrow">→</span>
+    </a>
+
+    <!-- 캐릭터 4 -->
+    <a class="char-card" href="chat-noah.html">
+      <div class="char-number">No. 04</div>
+      <div class="char-name">Noah</div>
+      <div class="char-title">전학생</div>
+      <div class="char-desc">어디서 왔는지도 모르는 전학생.<br>밤마다 옥상에서 별을 본다는 소문이 있다.</div>
+      <span class="char-arrow">→</span>
+    </a>
+
+    <!-- 캐릭터 5 -->
+    <a class="char-card" href="chat-ash.html">
+      <div class="char-number">No. 05</div>
+      <div class="char-name">Ash</div>
+      <div class="char-title">음악실 상주자</div>
+      <div class="char-desc">항상 이어폰을 끼고 있어서<br>불러도 잘 대답하지 않는다.</div>
+      <span class="char-arrow">→</span>
+    </a>
+
+    <!-- 캐릭터 6 (잠금 예시 — 해제하려면 locked 클래스 제거) -->
+    <div class="char-card locked">
+      <div class="char-number">No. 06</div>
+      <div class="char-name">???</div>
+      <div class="char-title">미공개</div>
+      <div class="char-desc"></div>
+    </div>
+  </div>
+
+  <div class="footer-links">
+    <a href="#" onclick="changeName()">이름 변경</a>
+    <a href="about.html">about</a>
+  </div>
+</div>
+
+<script>
+  // ── 이름 & 날짜 관련 ──
+  const KEY_NAME  = 'dd_player_name';
+  const KEY_VISIT = 'dd_visit_count';
+  const KEY_DATE  = 'dd_last_date';
+
+  let popupTarget = '';
+
+  function today() {
+    return new Date().toDateString();
+  }
+
+  function enterSite() {
+    const raw = document.getElementById('player-name-input').value.trim();
+    const name = raw || '특기생';
+    localStorage.setItem(KEY_NAME, name);
+    countVisit();
+    showMain(name);
+  }
+
+  function countVisit() {
+    const last = localStorage.getItem(KEY_DATE);
+    const t = today();
+    if (last !== t) {
+      const prev = parseInt(localStorage.getItem(KEY_VISIT) || '0', 10);
+      localStorage.setItem(KEY_VISIT, prev + 1);
+      localStorage.setItem(KEY_DATE, t);
+    }
+  }
+
+  function showMain(name) {
+    document.getElementById('name-screen').classList.add('hide');
+    setTimeout(() => {
+      document.getElementById('name-screen').style.display = 'none';
+      initMain(name);
+    }, 800);
+  }
+
+  function initMain(name) {
+    const ms = document.getElementById('main-screen');
+    ms.classList.add('show');
+
+    // 이름 표시
+    document.getElementById('display-name').textContent = name;
+
+    // 방문 횟수 & 인사말
+    const visits = parseInt(localStorage.getItem(KEY_VISIT) || '1', 10);
+    const badge  = document.getElementById('day-badge');
+    const greet  = document.getElementById('greeting-text').querySelector('span') 
+                   ? null : null;
+
+    if (visits === 1) {
+      badge.textContent = '◇  첫 번째 방문';
+      setGreeting(`처음 왔군요, `);
+    } else if (visits < 5) {
+      badge.textContent = `◇  ${visits}번째 방문`;
+      setGreeting(`또 왔네요, `);
+    } else {
+      badge.textContent = `◇  ${visits}번째 방문`;
+      setGreeting(`오랜만이에요, `);
+    }
+
+    document.getElementById('display-name').textContent = name;
+
+    // 팝업 테스트 (나중에 조건 걸어서 사용)
+    // showPopup('Kai', '오늘도 왔어? 뭔가 할 말 있어 보이는데.', 'chat-kai.html');
+  }
+
+  function setGreeting(text) {
+    const el = document.getElementById('greeting-text');
+    const name = localStorage.getItem(KEY_NAME) || '특기생';
+    el.innerHTML = `${text}<span style="color:var(--muted-rose)">${name}</span>.`;
+  }
+
+  function changeName() {
+    const current = localStorage.getItem(KEY_NAME) || '';
+    const newName = prompt('새 이름을 입력하세요', current);
+    if (newName !== null) {
+      const trimmed = newName.trim() || '특기생';
+      localStorage.setItem(KEY_NAME, trimmed);
+      document.getElementById('display-name').textContent = trimmed;
+      setGreeting(document.getElementById('greeting-text').textContent.split(',')[0].trim() + ' ');
+    }
+    return false;
+  }
+
+  // ── 팝업 ──
+  function showPopup(sender, msg, target) {
+    popupTarget = target;
+    document.getElementById('popup-sender').textContent = sender;
+    document.getElementById('popup-msg').textContent = msg;
+    document.getElementById('popup-avatar').textContent = sender[0];
+    const el = document.getElementById('popup-notif');
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 6000);
+  }
+
+  function goToChat(url) {
+    if (url) window.location.href = url;
+  }
+
+  // ── 진입 판단 ──
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem(KEY_NAME);
+    if (saved) {
+      document.getElementById('name-screen').style.display = 'none';
+      countVisit();
+      initMain(saved);
+      document.getElementById('main-screen').classList.add('show');
+    }
+
+    // Enter 키로 진입
+    document.getElementById('player-name-input')
+      .addEventListener('keydown', e => { if (e.key === 'Enter') enterSite(); });
+  });
+</script>
+
+</body>
+</html>
