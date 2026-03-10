@@ -495,7 +495,7 @@
 
   <div class="footer-links">
     <a href="#" onclick="changeName()">이름 변경</a>
-    <a href="about.html">about</a>
+    <a href="http://www.truckdive.tistory.com">about</a>
   </div>
 </div>
 
@@ -633,13 +633,13 @@
 
     if (visits === 1) {
       badge.textContent = '◇  첫 번째 방문';
-      setGreeting(`처음 왔군요, `);
+      setGreeting(`처음 오셨군요, `);
     } else if (visits < 5) {
       badge.textContent = `◇  ${visits}번째 방문`;
-      setGreeting(`또 왔네요, `);
+      setGreeting(`또 오셨네요, `);
     } else {
       badge.textContent = `◇  ${visits}번째 방문`;
-      setGreeting(`오랜만이에요, `);
+      setGreeting(`오랜만이네요, `);
     }
 
     document.getElementById('display-name').textContent = name;
