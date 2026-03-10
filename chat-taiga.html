@@ -94,7 +94,7 @@
 <div class="chat-body" id="chat-body">
   <div class="date-divider" id="date-divider"></div>
   <div class="msg-row typing-row" id="typing-indicator">
-    <div class="bubble-avatar"><img src="img/taiga_pr.png" alt="타이가"></div>
+    <div class="bubble-avatar"><img src="img/taiga_pr.png" alt="타이가" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
     <div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
   </div>
 </div>
@@ -158,6 +158,65 @@ const SCRIPT = {
     choices: [
       { text: "저도 그래요.", reply: "오~ 진짜? 그럼 매일 오면 되겠네. 크하하.", affinityGain: 12, next: null },
       { text: "이상하지 않아요.", reply: "그래? 크하하. ...고마워.", affinityGain: 10, next: null }
+    ]
+  }
+};
+
+// ── 팝업 이벤트 전용 스크립트 ──
+// 팝업 눌러서 들어왔을 때만 나오는 특별 대화
+const POPUP_EVENTS = [
+  {
+    message: "야~ 기다렸다고. 배고파서 혼자 먹으려다가 참았잖아.",
+    choices: [
+      {
+        text: "저 기다려줬어요?",
+        reply: "어~ 당연하지. 혼자 먹는 거 별로야. 크하하.",
+        affinityGain: 15,
+        next: "popup_b"
+      },
+      {
+        text: "미안해요, 빨리 왔는데.",
+        reply: "됐어~ 왔잖아. 빨리 가자.",
+        affinityGain: 10,
+        next: "popup_b"
+      }
+    ]
+  },
+  {
+    message: "어이~ 암고양이. 할 말이 있어서 불렀어.",
+    choices: [
+      {
+        text: "무슨 말이에요?",
+        reply: "음... 뭐, 별거 아닌데. 자꾸 생각나거든? 크하하.",
+        affinityGain: 15,
+        next: "popup_b"
+      },
+      {
+        text: "저요?",
+        reply: "그래~ 너. 이상하지? 나도 잘 모르겠어.",
+        affinityGain: 12,
+        next: "popup_b"
+      }
+    ]
+  }
+];
+
+const POPUP_SCRIPT_CONT = {
+  popup_b: {
+    message: "있잖아, 솔직히 말하면... 네가 오는 거 기다리게 됐어. 이상한 거 알아.",
+    choices: [
+      {
+        text: "이상하지 않아요.",
+        reply: "그래? 크하하... 그 말 들으니까 좀 낫네.",
+        affinityGain: 15,
+        next: null
+      },
+      {
+        text: "저도 타이가 씨 보고 싶었어요.",
+        reply: "...오~ 진짜? 크하하! 그거면 됐다.",
+        affinityGain: 18,
+        next: null
+      }
     ]
   }
 };
@@ -251,17 +310,23 @@ function onChoose(idx) {
   setTimeout(() => {
     hideTyping();
     appendMsg('char', choice.reply, nowTime());
-    if (choice.next && SCRIPT[choice.next]) {
-      setTimeout(() => {
-        const next = SCRIPT[choice.next];
-        const msg = Array.isArray(next.message) ? pick(next.message) : next.message;
-        showTyping();
+    if (choice.next) {
+      // 팝업 이벤트 연속 대화 or 일반 대화 구분
+      const nextScript = POPUP_SCRIPT_CONT[choice.next] || SCRIPT[choice.next];
+      if (nextScript) {
         setTimeout(() => {
-          hideTyping();
-          appendMsg('char', msg, nowTime());
-          renderChoices(next.choices);
-        }, 900 + Math.random() * 600);
-      }, 600);
+          const msg = Array.isArray(nextScript.message) ? pick(nextScript.message) : nextScript.message;
+          showTyping();
+          setTimeout(() => {
+            hideTyping();
+            appendMsg('char', msg, nowTime());
+            renderChoices(nextScript.choices);
+          }, 900 + Math.random() * 600);
+        }, 600);
+      } else {
+        localStorage.setItem(KEY_CHAT_DATE, todayStr());
+        setTimeout(() => showDailyLimit(), 800);
+      }
     } else {
       localStorage.setItem(KEY_CHAT_DATE, todayStr());
       setTimeout(() => showDailyLimit(), 800);
@@ -281,6 +346,27 @@ function selectScript() {
 window.addEventListener('DOMContentLoaded', () => {
   updateAffinityBar();
   document.getElementById('date-divider').textContent = todayStr();
+
+  // 팝업에서 넘어왔는지 확인
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('from') === 'popup') {
+    // 팝업 이벤트 대화 실행 (랜덤으로 하나 선택)
+    const event = POPUP_EVENTS[Math.floor(Math.random() * POPUP_EVENTS.length)];
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      appendMsg('char', event.message, nowTime());
+      // 이벤트 선택지에 연속 대화 연결
+      const eventChoices = event.choices.map(c => ({
+        ...c,
+        // next가 있으면 POPUP_SCRIPT_CONT에서 찾기
+        _isPopup: true
+      }));
+      renderChoices(eventChoices);
+    }, 1000);
+    return;
+  }
+
   const script = selectScript();
   if (!script) {
     appendMsg('char', '오늘은 이미 이야기했잖아요. 내일 또 와요.', nowTime());

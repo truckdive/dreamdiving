@@ -94,7 +94,7 @@
 <div class="chat-body" id="chat-body">
   <div class="date-divider" id="date-divider"></div>
   <div class="msg-row typing-row" id="typing-indicator">
-    <div class="bubble-avatar"><img src="img/ren_pr.png" alt="렌"></div>
+    <div class="bubble-avatar"><img src="img/ren_pr.png" alt="렌" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
     <div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
   </div>
 </div>
@@ -158,6 +158,34 @@ const SCRIPT = {
     choices: [
       { text: "저도 렌이랑 있는 거 좋아요.", reply: "...칫. 그런 말 하지 마슴까. 최악.", affinityGain: 12, next: null },
       { text: "최악이래요?", reply: "...말 그대로임다. ...뭐. 와도 됨다.", affinityGain: 8, next: null }
+    ]
+  }
+};
+
+// ── 팝업 이벤트 전용 스크립트 ──
+const POPUP_EVENTS = [
+  {
+    message: "선배. 왜 안 왔슴까. 기다렸슴다. 뭐.",
+    choices: [
+      { text: "기다렸어요?", reply: "...최악이다. 그런 거 확인하지 마슴까.", affinityGain: 15, next: "popup_b" },
+      { text: "미안해요, 빨리 오고 싶었는데.", reply: "...뭐. 됐슴다. 왔으면 됐슴까.", affinityGain: 12, next: "popup_b" }
+    ]
+  },
+  {
+    message: "...선배한테 할 말 있슴다. 별거 아닌데.",
+    choices: [
+      { text: "무슨 말이에요?", reply: "...뭐. 자꾸 생각나서임다. 최악.", affinityGain: 15, next: "popup_b" },
+      { text: "저한테요?", reply: "...그렇슴까. 왜 놀라슴까.", affinityGain: 12, next: "popup_b" }
+    ]
+  }
+];
+
+const POPUP_SCRIPT_CONT = {
+  popup_b: {
+    message: "...선배랑 있으면 최악인데. 없으면 더 최악임다. 뭐.",
+    choices: [
+      { text: "저도 렌이랑 있고 싶어요.", reply: "...최악이다. ...뭐. 그거면 됐슴다.", affinityGain: 15, next: null },
+      { text: "없으면 최악이에요?", reply: "...말 그대로임다. 칫.", affinityGain: 12, next: null }
     ]
   }
 };
@@ -251,17 +279,24 @@ function onChoose(idx) {
   setTimeout(() => {
     hideTyping();
     appendMsg('char', choice.reply, nowTime());
-    if (choice.next && SCRIPT[choice.next]) {
-      setTimeout(() => {
-        const next = SCRIPT[choice.next];
-        const msg = Array.isArray(next.message) ? pick(next.message) : next.message;
-        showTyping();
+    if (choice.next) {
+      const nextScript = (typeof POPUP_SCRIPT_CONT !== 'undefined' && POPUP_SCRIPT_CONT[choice.next])
+        ? POPUP_SCRIPT_CONT[choice.next]
+        : SCRIPT[choice.next];
+      if (nextScript) {
         setTimeout(() => {
-          hideTyping();
-          appendMsg('char', msg, nowTime());
-          renderChoices(next.choices);
-        }, 900 + Math.random() * 600);
-      }, 600);
+          const msg = Array.isArray(nextScript.message) ? pick(nextScript.message) : nextScript.message;
+          showTyping();
+          setTimeout(() => {
+            hideTyping();
+            appendMsg('char', msg, nowTime());
+            renderChoices(nextScript.choices);
+          }, 900 + Math.random() * 600);
+        }, 600);
+      } else {
+        localStorage.setItem(KEY_CHAT_DATE, todayStr());
+        setTimeout(() => showDailyLimit(), 800);
+      }
     } else {
       localStorage.setItem(KEY_CHAT_DATE, todayStr());
       setTimeout(() => showDailyLimit(), 800);
