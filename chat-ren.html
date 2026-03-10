@@ -80,7 +80,7 @@
 <body>
 <div class="chat-header">
   <a class="back-btn" href="index.html">‹</a>
-  <div class="char-avatar" id="header-avatar">렌</div>
+  <div class="char-avatar" id="header-avatar"><img src="img/ren_pr.png" alt="렌"></div>
   <div class="char-info">
     <div class="char-info-name">시라나미 렌</div>
     <div class="char-info-sub">재버워크 신입생</div>
@@ -94,7 +94,7 @@
 <div class="chat-body" id="chat-body">
   <div class="date-divider" id="date-divider"></div>
   <div class="msg-row typing-row" id="typing-indicator">
-    <div class="bubble-avatar">렌</div>
+    <div class="bubble-avatar"><img src="img/ren_pr.png" alt="렌"></div>
     <div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
   </div>
 </div>
@@ -199,7 +199,7 @@ function appendMsg(who, text, time) {
   if (who !== 'me') {
     const av = document.createElement('div');
     av.className = 'bubble-avatar';
-    av.textContent = '렌';
+    av.innerHTML = '<img src="img/ren_pr.png" alt="렌" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
     row.appendChild(av);
   }
   const wrap = document.createElement('div');
