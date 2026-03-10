@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>키리사키 지로 — Truckdive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #faf8f5;
+      --soft-white: #ffffff;
+      --blush: #f5e6e8;
+      --rose: #d4a0a7;
+      --muted-rose: #c08a92;
+      --dusty-blue: #b8c9d9;
+      --text-dark: #3a3035;
+      --text-mid: #6b5c62;
+      --text-light: #9e8e94;
+      --border: #e8dde0;
+      --chat-bg: #f2eff0;
+      --my-bubble: #dce8f0;
+      --char-bubble: #ffffff;
+      --avatar-c1: #c8c0b0;
+      --avatar-c2: #b0bcc8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--chat-bg); font-family: 'Noto Sans KR', sans-serif; font-weight: 300; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+    .chat-header { background: var(--soft-white); border-bottom: 1px solid var(--border); padding: 0.75rem 1.2rem; display: flex; align-items: center; gap: 0.9rem; flex-shrink: 0; }
+    .back-btn { font-size: 1.1rem; color: var(--text-light); text-decoration: none; line-height: 1; padding: 0.2rem 0.4rem; transition: color 0.2s; }
+    .back-btn:hover { color: var(--muted-rose); }
+    .char-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--avatar-c1), var(--avatar-c2)); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--text-mid); flex-shrink: 0; overflow: hidden; }
+    .char-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .char-info { flex: 1; }
+    .char-info-name { font-size: 0.9rem; font-weight: 400; color: var(--text-dark); }
+    .char-info-sub { font-size: 0.68rem; color: var(--text-light); margin-top: 0.1rem; }
+    .affinity-badge { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; }
+    .affinity-label { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--text-light); text-transform: uppercase; }
+    .affinity-bar { width: 70px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .affinity-fill { height: 100%; background: linear-gradient(90deg, var(--rose), var(--dusty-blue)); border-radius: 2px; transition: width 0.6s ease; }
+    .affinity-num { font-size: 0.62rem; color: var(--muted-rose); }
+    .chat-body { flex: 1; overflow-y: auto; padding: 1.2rem 1rem 0.5rem; display: flex; flex-direction: column; gap: 0.6rem; scroll-behavior: smooth; }
+    .chat-body::-webkit-scrollbar { width: 4px; }
+    .chat-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .date-divider { text-align: center; font-size: 0.65rem; color: var(--text-light); letter-spacing: 0.15em; margin: 0.5rem 0; position: relative; }
+    .date-divider::before, .date-divider::after { content: ''; position: absolute; top: 50%; width: 28%; height: 1px; background: var(--border); }
+    .date-divider::before { left: 0; }
+    .date-divider::after { right: 0; }
+    .msg-row { display: flex; align-items: flex-end; gap: 0.5rem; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .msg-row.mine { flex-direction: row-reverse; }
+    .bubble-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--avatar-c1), var(--avatar-c2)); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 0.8rem; color: var(--text-mid); flex-shrink: 0; overflow: hidden; }
+    .bubble-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .bubble-avatar.hidden { visibility: hidden; }
+    .bubble-wrap { max-width: 72%; display: flex; flex-direction: column; gap: 0.2rem; }
+    .msg-row.mine .bubble-wrap { align-items: flex-end; }
+    .bubble { padding: 0.65rem 0.9rem; border-radius: 18px; font-size: 0.85rem; line-height: 1.65; color: var(--text-dark); word-break: keep-all; }
+    .char-bubble-style { background: var(--char-bubble); border-radius: 4px 18px 18px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .my-bubble-style { background: var(--my-bubble); border-radius: 18px 18px 4px 18px; }
+    .bubble-time { font-size: 0.6rem; color: var(--text-light); padding: 0 0.3rem; align-self: flex-end; }
+    .typing-row { display: none; }
+    .typing-row.show { display: flex; }
+    .typing-bubble { background: var(--char-bubble); border-radius: 4px 18px 18px 18px; padding: 0.65rem 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; gap: 0.3rem; align-items: center; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-light); animation: bounce 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-5px); opacity: 1; } }
+    .choices-area { background: var(--soft-white); border-top: 1px solid var(--border); padding: 0.8rem 1rem; flex-shrink: 0; }
+    .choices-label { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.6rem; }
+    .choices-list { display: flex; flex-direction: column; gap: 0.45rem; }
+    .choice-btn { background: transparent; border: 1px solid var(--border); border-radius: 20px; padding: 0.55rem 1rem; font-family: 'Noto Sans KR', sans-serif; font-size: 0.8rem; font-weight: 300; color: var(--text-mid); cursor: pointer; text-align: left; transition: all 0.2s; }
+    .choice-btn:hover { border-color: var(--rose); color: var(--muted-rose); background: var(--blush); }
+    .choice-btn:active { transform: scale(0.98); }
+    .choice-btn.disabled { opacity: 0.4; pointer-events: none; }
+    .daily-limit { text-align: center; padding: 1rem; font-size: 0.75rem; color: var(--text-light); line-height: 1.8; }
+    .daily-limit span { color: var(--muted-rose); }
+    .toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-dark); color: white; font-size: 0.75rem; padding: 0.5rem 1.2rem; border-radius: 20px; opacity: 0; transition: all 0.4s; white-space: nowrap; pointer-events: none; z-index: 50; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="chat-header">
+  <a class="back-btn" href="index.html">‹</a>
+  <div class="char-avatar" id="header-avatar">지</div>
+  <div class="char-info">
+    <div class="char-info-name">키리사키 지로</div>
+    <div class="char-info-sub">몰트크랑켄 부대장</div>
+  </div>
+  <div class="affinity-badge">
+    <div class="affinity-label">affinity</div>
+    <div class="affinity-bar"><div class="affinity-fill" id="affinity-fill" style="width:0%"></div></div>
+    <div class="affinity-num" id="affinity-num">0 / 100</div>
+  </div>
+</div>
+<div class="chat-body" id="chat-body">
+  <div class="date-divider" id="date-divider"></div>
+  <div class="msg-row typing-row" id="typing-indicator">
+    <div class="bubble-avatar">지</div>
+    <div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+</div>
+<div class="choices-area" id="choices-area">
+  <div class="choices-label">— 선택 —</div>
+  <div class="choices-list" id="choices-list"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+
+const SCRIPT = {
+  day1: {
+    condition: { visits: 1 },
+    message: "실례합니다. 특기생이시죠. 키리사키 지로입니다. 몰트크랑켄 부대장이에요.",
+    choices: [
+      { text: "잘 부탁드려요.", reply: "네. 저도요. ...안색이 좋지 않아 보이는데, 괜찮으신가요.", affinityGain: 6, next: "day1_b" },
+      { text: "의사예요?", reply: "네, 맞습니다. ...뭔가 불편한 곳이라도?", affinityGain: 8, next: "day1_b" },
+      { text: "(긴장해서 말이 없다)", reply: "...긴장하지 않으셔도 됩니다. 저는 해롭지 않아요.", affinityGain: 5, next: "day1_b" }
+    ]
+  },
+  day1_b: {
+    message: "...이쪽에 자주 오실 건가요.",
+    choices: [
+      { text: "오고 싶어요.", reply: "...그렇군요. 환영합니다. 언제든지.", affinityGain: 8, next: null },
+      { text: "지로 씨가 있으면요.", reply: "...네? ...그렇다면, 제가 있을게요.", affinityGain: 12, next: null }
+    ]
+  },
+  day2: {
+    condition: { visits: 2, visitsMax: 4 },
+    message: ["또 오셨군요. 연락은 미리 해주셔도 됩니다.", "오늘도 오셨네요. 기다리고 있었어요."],
+    choices: [
+      { text: "기다렸어요?", reply: "...네. 뭐. 그렇습니다.", affinityGain: 10, next: "day2_b" },
+      { text: "검진받으러 왔어요.", reply: "...지금은 검진 시간이 아닌데요. ...그래도, 앉으세요.", affinityGain: 6, next: "day2_b" }
+    ]
+  },
+  day2_b: {
+    message: "...불편한 건 없으신가요. 무리하지 않으셨으면 해서요.",
+    choices: [
+      { text: "지로 씨 보면 좋아져요.", reply: "...그건 의학적으로 설명이 안 되는데요. ...나쁘지 않지만.", affinityGain: 12, next: null },
+      { text: "괜찮아요.", reply: "...다행이네요. 무슨 일 생기면 바로 오세요.", affinityGain: 5, next: null }
+    ]
+  },
+  day5_low: {
+    condition: { visits: 5, affinity: 0, affinityMax: 29 },
+    message: "...매일 오시네요. 건강 관리 잘 되고 있는 건가요.",
+    choices: [
+      { text: "지로 씨가 보고 싶어서요.", reply: "...그거 건강 관리랑은 별개인 것 같은데요. ...뭐, 오셔도 됩니다.", affinityGain: 10, next: null },
+      { text: "그냥 습관이에요.", reply: "...그렇군요. 좋은 습관이에요.", affinityGain: 6, next: null }
+    ]
+  },
+  day5_high: {
+    condition: { visits: 5, affinity: 30 },
+    message: "오늘도 오실 것 같았어요. ...사실, 기다렸습니다.",
+    choices: [
+      { text: "기다려줬어요?", reply: "...네. 부정하면 거짓말이 되니까요.", affinityGain: 15, next: "day5_high_b" },
+      { text: "저도 빨리 오고 싶었어요.", reply: "...그렇군요. 다행입니다.", affinityGain: 12, next: "day5_high_b" }
+    ]
+  },
+  day5_high_b: {
+    message: "...당신이 오면 안심이 돼요. 이상한 증상인 것 같기도 하고.",
+    choices: [
+      { text: "이상하지 않아요.", reply: "...그렇게 말해줘서 고마워요.", affinityGain: 12, next: null },
+      { text: "저도 그래요.", reply: "...그렇군요. ...그거면 됐습니다.", affinityGain: 10, next: null }
+    ]
+  }
+};
+
+const KEY_NAME      = 'dd_player_name';
+const KEY_AFFINITY  = 'dd_affinity_jiro';
+const KEY_VISIT     = 'dd_visit_count';
+const KEY_CHAT_DATE = 'dd_chat_jiro_date';
+
+let affinity   = parseInt(localStorage.getItem(KEY_AFFINITY) || '0', 10);
+let visits     = parseInt(localStorage.getItem(KEY_VISIT)    || '1', 10);
+let playerName = localStorage.getItem(KEY_NAME) || '특기생';
+let currentChoices = [];
+
+function todayStr() { return new Date().toLocaleDateString('ko-KR'); }
+function nowTime()  { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function saveAffinity(val) {
+  affinity = Math.min(100, Math.max(0, val));
+  localStorage.setItem(KEY_AFFINITY, affinity);
+  updateAffinityBar();
+}
+function updateAffinityBar() {
+  document.getElementById('affinity-fill').style.width = affinity + '%';
+  document.getElementById('affinity-num').textContent  = affinity + ' / 100';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function appendMsg(who, text, time) {
+  const body = document.getElementById('chat-body');
+  const typing = document.getElementById('typing-indicator');
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (who === 'me' ? ' mine' : '');
+  if (who !== 'me') {
+    const av = document.createElement('div');
+    av.className = 'bubble-avatar';
+    av.textContent = '지';
+    row.appendChild(av);
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (who === 'me' ? 'my-bubble-style' : 'char-bubble-style');
+  bubble.innerHTML = text.replace(/\n/g, '<br>');
+  wrap.appendChild(bubble);
+  const timeEl = document.createElement('div');
+  timeEl.className = 'bubble-time';
+  timeEl.textContent = time;
+  wrap.appendChild(timeEl);
+  row.appendChild(wrap);
+  body.insertBefore(row, typing);
+  body.scrollTop = body.scrollHeight;
+}
+function showTyping() { document.getElementById('typing-indicator').classList.add('show'); document.getElementById('chat-body').scrollTop = 9999; }
+function hideTyping() { document.getElementById('typing-indicator').classList.remove('show'); }
+function renderChoices(choices) {
+  const list = document.getElementById('choices-list');
+  list.innerHTML = '';
+  choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.text;
+    btn.onclick = () => onChoose(i);
+    list.appendChild(btn);
+  });
+  currentChoices = choices;
+}
+function clearChoices() { document.getElementById('choices-list').innerHTML = ''; currentChoices = []; }
+function showDailyLimit() {
+  const area = document.getElementById('choices-area');
+  area.innerHTML = '<div class="daily-limit">오늘은 여기까지예요.<br><span>내일 다시 찾아와요.</span></div>';
+}
+function onChoose(idx) {
+  const choice = currentChoices[idx];
+  if (!choice) return;
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.add('disabled'));
+  const t = nowTime();
+  appendMsg('me', choice.text, t);
+  const prevAffinity = affinity;
+  saveAffinity(affinity + choice.affinityGain);
+  if (Math.floor(affinity / 10) > Math.floor(prevAffinity / 10)) {
+    setTimeout(() => showToast('♡ 호감도가 올랐어요'), 1200);
+  }
+  clearChoices();
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    appendMsg('char', choice.reply, nowTime());
+    if (choice.next && SCRIPT[choice.next]) {
+      setTimeout(() => {
+        const next = SCRIPT[choice.next];
+        const msg = Array.isArray(next.message) ? pick(next.message) : next.message;
+        showTyping();
+        setTimeout(() => {
+          hideTyping();
+          appendMsg('char', msg, nowTime());
+          renderChoices(next.choices);
+        }, 900 + Math.random() * 600);
+      }, 600);
+    } else {
+      localStorage.setItem(KEY_CHAT_DATE, todayStr());
+      setTimeout(() => showDailyLimit(), 800);
+    }
+  }, 800 + Math.random() * 700);
+}
+function selectScript() {
+  if (localStorage.getItem(KEY_CHAT_DATE) === todayStr()) return null;
+  const candidates = [
+    (visits >= 5 && affinity >= 30)  ? SCRIPT.day5_high  : null,
+    (visits >= 5 && affinity < 30)   ? SCRIPT.day5_low   : null,
+    (visits >= 2 && visits <= 4)     ? SCRIPT.day2       : null,
+    (visits === 1)                   ? SCRIPT.day1       : null,
+  ];
+  return candidates.find(Boolean) || SCRIPT.day2;
+}
+window.addEventListener('DOMContentLoaded', () => {
+  updateAffinityBar();
+  document.getElementById('date-divider').textContent = todayStr();
+  const script = selectScript();
+  if (!script) {
+    appendMsg('char', '오늘은 이미 이야기했잖아요. 내일 또 와요.', nowTime());
+    showDailyLimit();
+    return;
+  }
+  const openMsg = Array.isArray(script.message) ? pick(script.message) : script.message;
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    appendMsg('char', openMsg, nowTime());
+    renderChoices(script.choices);
+  }, 1000);
+});
+</script>
+</body>
+</html>
