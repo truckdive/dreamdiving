@@ -219,7 +219,7 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-function appendMsg(who, text, time) {
+function appendMsg(who, text, time, imgSrc) {
   const body = document.getElementById('chat-body');
   const typing = document.getElementById('typing-indicator');
   const row = document.createElement('div');
@@ -232,10 +232,27 @@ function appendMsg(who, text, time) {
   }
   const wrap = document.createElement('div');
   wrap.className = 'bubble-wrap';
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble ' + (who === 'me' ? 'my-bubble-style' : 'char-bubble-style');
-  bubble.innerHTML = text.replace(/\n/g, '<br>');
-  wrap.appendChild(bubble);
+  // 이미지 말풍선
+  if (imgSrc) {
+    const imgBubble = document.createElement('div');
+    imgBubble.className = 'bubble ' + (who === 'me' ? 'my-bubble-style' : 'char-bubble-style');
+    imgBubble.style.padding = '0.4rem';
+    imgBubble.style.background = 'transparent';
+    imgBubble.style.boxShadow = 'none';
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    img.alt = '이미지';
+    img.style.cssText = 'max-width:200px;width:100%;border-radius:12px;display:block;';
+    imgBubble.appendChild(img);
+    wrap.appendChild(imgBubble);
+  }
+  // 텍스트 말풍선
+  if (text) {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (who === 'me' ? 'my-bubble-style' : 'char-bubble-style');
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
+    wrap.appendChild(bubble);
+  }
   const timeEl = document.createElement('div');
   timeEl.className = 'bubble-time';
   timeEl.textContent = time;
@@ -278,7 +295,7 @@ function onChoose(idx) {
   showTyping();
   setTimeout(() => {
     hideTyping();
-    appendMsg('char', choice.reply, nowTime());
+    appendMsg('char', choice.reply, nowTime(), choice.replyImg || null);
     if (choice.next) {
       const nextScript = (typeof POPUP_SCRIPT_CONT !== 'undefined' && POPUP_SCRIPT_CONT[choice.next])
         ? POPUP_SCRIPT_CONT[choice.next]
@@ -326,8 +343,15 @@ window.addEventListener('DOMContentLoaded', () => {
   showTyping();
   setTimeout(() => {
     hideTyping();
-    appendMsg('char', openMsg, nowTime());
-    renderChoices(script.choices);
+    if (script.messageImg) appendMsg('char', null, nowTime(), script.messageImg);
+    setTimeout(() => {
+      if (script.messageImg) showTyping();
+      setTimeout(() => {
+        if (script.messageImg) hideTyping();
+        appendMsg('char', openMsg, nowTime());
+        renderChoices(script.choices);
+      }, script.messageImg ? 800 : 0);
+    }, script.messageImg ? 600 : 0);
   }, 1000);
 });
 </script>

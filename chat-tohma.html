@@ -547,7 +547,7 @@ function showToast(msg) {
 // ════════════════════════════════════════
 //  메시지 렌더
 // ════════════════════════════════════════
-function appendMsg(who, text, time, showAvatar = true) {
+function appendMsg(who, text, time, imgSrc) {
   const body = document.getElementById('chat-body');
   const typing = document.getElementById('typing-indicator');
 
@@ -556,7 +556,7 @@ function appendMsg(who, text, time, showAvatar = true) {
 
   if (who !== 'me') {
     const av = document.createElement('div');
-    av.className = 'bubble-avatar' + (showAvatar ? '' : ' hidden');
+    av.className = 'bubble-avatar';
     av.innerHTML = '<img src="img/tohma_pr.png" alt="토우마" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
     row.appendChild(av);
   }
@@ -564,10 +564,28 @@ function appendMsg(who, text, time, showAvatar = true) {
   const wrap = document.createElement('div');
   wrap.className = 'bubble-wrap';
 
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble ' + (who === 'me' ? 'my-bubble-style' : 'char-bubble-style');
-  bubble.innerHTML = text.replace(/\n/g, '<br>');
-  wrap.appendChild(bubble);
+  // 이미지 말풍선
+  if (imgSrc) {
+    const imgBubble = document.createElement('div');
+    imgBubble.className = 'bubble ' + (who === 'me' ? 'my-bubble-style' : 'char-bubble-style');
+    imgBubble.style.padding = '0.4rem';
+    imgBubble.style.background = 'transparent';
+    imgBubble.style.boxShadow = 'none';
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    img.alt = '이미지';
+    img.style.cssText = 'max-width:200px;width:100%;border-radius:12px;display:block;';
+    imgBubble.appendChild(img);
+    wrap.appendChild(imgBubble);
+  }
+
+  // 텍스트 말풍선
+  if (text) {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (who === 'me' ? 'my-bubble-style' : 'char-bubble-style');
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
+    wrap.appendChild(bubble);
+  }
 
   const timeEl = document.createElement('div');
   timeEl.className = 'bubble-time';
@@ -640,7 +658,7 @@ function onChoose(idx) {
   showTyping();
   setTimeout(() => {
     hideTyping();
-    appendMsg('char', choice.reply, nowTime());
+    appendMsg('char', choice.reply, nowTime(), choice.replyImg || null);
 
     // 다음 선택지
     if (choice.next && SCRIPT[choice.next]) {
@@ -650,6 +668,7 @@ function onChoose(idx) {
         showTyping();
         setTimeout(() => {
           hideTyping();
+          if (next.messageImg) appendMsg('char', null, nowTime(), next.messageImg);
           appendMsg('char', msg, nowTime());
           renderChoices(next.choices);
         }, 900 + Math.random() * 600);
@@ -705,8 +724,15 @@ window.addEventListener('DOMContentLoaded', () => {
   showTyping();
   setTimeout(() => {
     hideTyping();
-    appendMsg('char', openMsg, nowTime());
-    renderChoices(script.choices);
+    if (script.messageImg) appendMsg('char', null, nowTime(), script.messageImg);
+    setTimeout(() => {
+      if (script.messageImg) showTyping();
+      setTimeout(() => {
+        if (script.messageImg) hideTyping();
+        appendMsg('char', openMsg, nowTime());
+        renderChoices(script.choices);
+      }, script.messageImg ? 800 : 0);
+    }, script.messageImg ? 600 : 0);
   }, 1000);
 });
 </script>
