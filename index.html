@@ -437,54 +437,54 @@
       <span class="day-badge" id="day-badge">첫 번째 방문</span>
     </div>
     <h1 class="main-title">Truckdive</h1>
-    <p class="greeting" id="greeting-text">어서 오세요, <span id="display-name">특기생</span>님.</p>
+    <p class="greeting" id="greeting-text">어서 와요, <span id="display-name">특기생</span>.</p>
   </div>
 
   <p class="section-label">— characters —</p>
 
   <div class="char-grid">
     <!-- 캐릭터 1 -->
-    <a class="char-card" href="chat-jin.html">
+    <a class="char-card" href="chat-ren.html">
       <div class="char-number">No. 01</div>
-      <div class="char-name">카무라이 진</div>
-      <div class="char-title">프로스트 하임 대장</div>
-      <div class="char-desc">...칫.<br>하찮은 게.</div>
+      <div class="char-name">Ren</div>
+      <div class="char-title">학생회장</div>
+      <div class="char-desc">차갑고 단정한 말투 뒤에<br>무언가를 숨기고 있는 것 같은 사람.</div>
       <span class="char-arrow">→</span>
     </a>
 
     <!-- 캐릭터 2 -->
-    <a class="char-card" href="chat-tohma.html">
+    <a class="char-card" href="chat-kai.html">
       <div class="char-number">No. 02</div>
-      <div class="char-name">이시바시 토우마</div>
-      <div class="char-title">프로스트하임 부대장</div>
-      <div class="char-desc">이런, 오늘도 찾아주셨군요.<br>크크... 그렇게 겁낼 필요는 없어요.</div>
+      <div class="char-name">Kai</div>
+      <div class="char-title">오컬트 연구회</div>
+      <div class="char-desc">눈이 마주칠 때마다 웃는데,<br>그 웃음이 어딘가 위험해 보인다.</div>
       <span class="char-arrow">→</span>
     </a>
 
     <!-- 캐릭터 3 -->
-    <a class="char-card" href="chat-ren.html">
+    <a class="char-card" href="chat-sol.html">
       <div class="char-number">No. 03</div>
-      <div class="char-name">시라나미 렌</div>
-      <div class="char-title">재버워크 신입생</div>
-      <div class="char-desc">최악이다....<br>아, 선배. 왔슴까.</div>
+      <div class="char-name">Sol</div>
+      <div class="char-title">도서관 사서</div>
+      <div class="char-desc">조용한 목소리로 뜻밖의 말을 건네는.<br>책 속에서 살고 있는 것 같은 사람.</div>
       <span class="char-arrow">→</span>
     </a>
 
     <!-- 캐릭터 4 -->
-    <a class="char-card" href="chat-jiro.html">
+    <a class="char-card" href="chat-noah.html">
       <div class="char-number">No. 04</div>
-      <div class="char-name">키리사키 지로</div>
-      <div class="char-title">몰트크랑켄 부대장</div>
-      <div class="char-desc">검진 시간입니다.<br>...네? 연락은 미리 했습니다만.</div>
+      <div class="char-name">Noah</div>
+      <div class="char-title">전학생</div>
+      <div class="char-desc">어디서 왔는지도 모르는 전학생.<br>밤마다 옥상에서 별을 본다는 소문이 있다.</div>
       <span class="char-arrow">→</span>
     </a>
 
     <!-- 캐릭터 5 -->
-    <a class="char-card" href="chat-taiga.html">
+    <a class="char-card" href="chat-ash.html">
       <div class="char-number">No. 05</div>
-      <div class="char-name">호시바미 타이가</div>
-      <div class="char-title">시노스트라 대장</div>
-      <div class="char-desc">어이, 암고양이~<br>배고픈데도 한참 기다렸다고.</div>
+      <div class="char-name">Ash</div>
+      <div class="char-title">음악실 상주자</div>
+      <div class="char-desc">항상 이어폰을 끼고 있어서<br>불러도 잘 대답하지 않는다.</div>
       <span class="char-arrow">→</span>
     </a>
 
@@ -513,6 +513,87 @@
 
   function today() {
     return new Date().toDateString();
+  }
+
+  // ── 팝업 조건 설정 ──
+  const POPUP_CHARS = [
+    {
+      key: 'dd_affinity_tohma',
+      chatFile: 'chat-tohma.html',
+      name: '이시바시 토우마',
+      initial: '토',
+      minAffinity: 20,
+      minVisits: 3,
+      messages: [
+        '크크... 기다리고 있었어요.',
+        '오늘도 올 것 같았어요.',
+        '할 말이 있는데. 잠깐 올래요?',
+      ]
+    },
+    {
+      key: 'dd_affinity_jin',
+      chatFile: 'chat-jin.html',
+      name: '카무라이 진',
+      initial: '진',
+      minAffinity: 25,
+      minVisits: 4,
+      messages: [
+        '...할 말 있다.',
+        '잠깐. 어디 가.',
+        '...왜 안 와.',
+      ]
+    },
+    {
+      key: 'dd_affinity_ren',
+      chatFile: 'chat-ren.html',
+      name: '시라나미 렌',
+      initial: '렌',
+      minAffinity: 20,
+      minVisits: 3,
+      messages: [
+        '선배. 왜 안 와요.',
+        '...심심한데. 올 거임까?',
+        '할 말은 없는데 그냥요.',
+      ]
+    },
+    {
+      key: 'dd_affinity_jiro',
+      chatFile: 'chat-jiro.html',
+      name: '키리사키 지로',
+      initial: '지',
+      minAffinity: 20,
+      minVisits: 3,
+      messages: [
+        '검진 시간입니다.',
+        '...안색이 좋지 않아 보여서요.',
+        '잠깐 시간 괜찮으신가요.',
+      ]
+    },
+    {
+      key: 'dd_affinity_taiga',
+      chatFile: 'chat-taiga.html',
+      name: '호시바미 타이가',
+      initial: '타',
+      minAffinity: 20,
+      minVisits: 3,
+      messages: [
+        '야~ 암고양이. 어디 있어?',
+        '배고프다. 같이 먹을래?',
+        '오늘 왜 이렇게 늦어.',
+      ]
+    },
+  ];
+
+  const KEY_POPUP_DATE = 'dd_popup_last_date';
+
+  function pickPopupChar(visits) {
+    if (localStorage.getItem(KEY_POPUP_DATE) === today()) return null;
+    const eligible = POPUP_CHARS.filter(c => {
+      const aff = parseInt(localStorage.getItem(c.key) || '0', 10);
+      return aff >= c.minAffinity && visits >= c.minVisits;
+    });
+    if (!eligible.length) return null;
+    return eligible[Math.floor(Math.random() * eligible.length)];
   }
 
   function enterSite() {
@@ -567,8 +648,14 @@
 
     document.getElementById('display-name').textContent = name;
 
-    // 팝업 테스트 (나중에 조건 걸어서 사용)
-    // showPopup('Kai', '오늘도 왔어? 뭔가 할 말 있어 보이는데.', 'chat-kai.html');
+    // 팝업 - 조건 맞는 캐릭터 있으면 2초 후 표시
+    const char = pickPopupChar(visits);
+    if (char) {
+      setTimeout(() => {
+        const msg = char.messages[Math.floor(Math.random() * char.messages.length)];
+        showPopup(char.name, char.initial, msg, char.chatFile);
+      }, 2000);
+    }
   }
 
   function setGreeting(text) {
@@ -590,14 +677,19 @@
   }
 
   // ── 팝업 ──
-  function showPopup(sender, msg, target) {
+  function showPopup(name, initial, msg, target) {
     popupTarget = target;
-    document.getElementById('popup-sender').textContent = sender;
+    localStorage.setItem(KEY_POPUP_DATE, today());
+    document.getElementById('popup-sender').textContent = name;
     document.getElementById('popup-msg').textContent = msg;
-    document.getElementById('popup-avatar').textContent = sender[0];
+    document.getElementById('popup-avatar').textContent = initial;
     const el = document.getElementById('popup-notif');
     el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 6000);
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.5s';
+      setTimeout(() => { el.style.display = 'none'; el.style.opacity = ''; el.style.transition = ''; }, 500);
+    }, 6000);
   }
 
   function goToChat(url) {
