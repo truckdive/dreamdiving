@@ -557,7 +557,7 @@ function appendMsg(who, text, time, showAvatar = true) {
   if (who !== 'me') {
     const av = document.createElement('div');
     av.className = 'bubble-avatar' + (showAvatar ? '' : ' hidden');
-    av.textContent = '토';
+    av.innerHTML = '<img src="img/tohma_pr.png" alt="토우마" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
     row.appendChild(av);
   }
 
