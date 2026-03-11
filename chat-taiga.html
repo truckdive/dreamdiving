@@ -390,7 +390,10 @@ window.addEventListener('DOMContentLoaded', () => {
     showDailyLimit();
     return;
   }
-  const openMsg = Array.isArray(script.message) ? pick(script.message) : script.message;
+const openMsg = Array.isArray(script.message) ? pick(script.message) : script.message;
+  if (script.playerFirst) {
+    appendMsg('me', script.playerFirst, nowTime());
+  }
   showTyping();
   setTimeout(() => {
     hideTyping();
