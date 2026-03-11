@@ -443,6 +443,20 @@ const SCRIPT = {
     ]
   },
 
+  day3_night: {
+  condition: { visits: 3, hourMin: 22, hourMax: 5 },
+  message: "...이 시간에 왔네요. 잠은 잘 자고 있어요?",
+  choices: [
+    { text: "잠이 안 와서요.", reply: "...그래요. 크크. 저도요.", affinityGain: 10, next: null },
+    { text: "토우마 씨 보고 싶었어요.", reply: "...이 시간에. 크크. 곤란하네요.", affinityGain: 15, next: null }
+  ]
+},
+day3: {   // ← 밤 버전 바로 아래에 일반 버전
+  condition: { visits: 3 },
+  message: "오늘도 왔군요.",
+  choices: [ ... ]
+},
+
   // ── 5일차 이상, 호감도 30 미만 ──
   day5_low: {
     condition: { visits: 5, affinity: 0, affinityMax: 29 },
@@ -688,10 +702,11 @@ function selectScript() {
   // 오늘 이미 대화했는지
   const lastChat = localStorage.getItem(KEY_CHAT_DATE);
   if (lastChat === todayStr()) return null;
-
+  const hour = new Date().getHours();
   // 조건 순서대로 검사
   const candidates = [
     // 높은 호감도 우선
+    (visits === 3 && (hour >= 22 || hour <= 5)) ? SCRIPT.day3_night : null,
     (visits >= 5 && affinity >= 30)  ? SCRIPT.day5_high   : null,
     (visits >= 5 && affinity < 30)   ? SCRIPT.day5_low    : null,
     (visits >= 2 && visits <= 4)     ? SCRIPT.day2        : null,
