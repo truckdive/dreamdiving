@@ -130,6 +130,19 @@ const SCRIPT = {
       { text: "검진받으러 왔어요.", reply: "...지금은 검진 시간이 아닌데요. ...그래도, 앉으세요.", affinityGain: 6, next: "day2_b" }
     ]
   },
+  day3_night: {
+  condition: { visits: 3, hourMin: 22, hourMax: 5 },
+  message: "...이 시간에 왔네요. 잠은 잘 자고 있어요?",
+  choices: [
+    { text: "잠이 안 와서요.", reply: "...그래요. 크크. 저도요.", affinityGain: 10, next: null },
+    { text: "토우마 씨 보고 싶었어요.", reply: "...이 시간에. 크크. 곤란하네요.", affinityGain: 15, next: null }
+  ]
+},
+day3: {   // ← 밤 버전 바로 아래에 일반 버전
+  condition: { visits: 3 },
+  message: "오늘도 왔군요.",
+  choices: [ ... ]
+},
   day2_b: {
     message: "...불편한 건 없으신가요. 무리하지 않으셨으면 해서요.",
     choices: [
@@ -322,7 +335,9 @@ function onChoose(idx) {
 }
 function selectScript() {
   if (localStorage.getItem(KEY_CHAT_DATE) === todayStr()) return null;
+  const hour = new Date().getHours();
   const candidates = [
+    (visits === 3 && (hour >= 22 || hour <= 5)) ? SCRIPT.day3_night : null,
     (visits >= 5 && affinity >= 30)  ? SCRIPT.day5_high  : null,
     (visits >= 5 && affinity < 30)   ? SCRIPT.day5_low   : null,
     (visits >= 2 && visits <= 4)     ? SCRIPT.day2       : null,
