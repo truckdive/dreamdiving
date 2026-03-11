@@ -126,64 +126,91 @@ const SCRIPT = {
     condition: { visits: 1 },
     message: "...뭐야.",
     choices: [
-      { text: "카무라이 씨, 단테 선생님께서 임무 의뢰서를….", reply: "…하.", affinityGain: 2, next: "day1_a" },
-      { text: "안녕하세요! 저, 이시바시 씨가 보고서를 전해드리라고….", reply: "…칫, 그 녀석….", affinityGain: 2, next: "day1_b" }
+      { text: "카무라이 씨, 단테 선생님께서 임무 의뢰서를....", reply: "...하.", affinityGain: 2, next: "day1_a" },
+      { text: "안녕하세요! 저, 이시바시 씨가 보고서를 전해드리라고....", reply: "...칫, 그 녀석....", affinityGain: 2, next: "day1_b" }
     ]
   },
   day1_a: {
     message: "그런 건 토우마를 찾아가.",
     choices: [
-      { text: "그렇지만, 꼭 카무라이 씨에게 전하라고….", reply: "성가시게 굴지 마.", affinityGain: 1, next: null },
-      { text: "네? 아, 알겠습니다….", reply: "….", affinityGain: 2, next: null }
+      { text: "그렇지만, 꼭 카무라이 씨에게 전하라고....", reply: "성가시게 굴지 마.", affinityGain: 1, next: null },
+      { text: "네? 아, 알겠습니다....", reply: "....", affinityGain: 2, next: null }
     ]
   },
   day1_b: {
     message: "어이, 하인. 내 방으로 와.",
     choices: [
       { text: "네? 아, 알겠습니다!", reply: "노크는 다섯 번이다.", affinityGain: 2, next: null },
-      { text: "방이요? 그, 그건 좀….", reply: "여러 번 말하게 하지 마.", affinityGain: 1, next: null }
+      { text: "방이요? 그, 그건 좀....", reply: "여러 번 말하게 하지 마.", affinityGain: 1, next: null }
     ]
   },
 
   day2: {
     condition: { visits: 2, visitsMax: 4 },
     playerFirst: "카무라이 씨, 도와주세요!",
-    message: ["…무슨 일이지?"],
+    message: ["...무슨 일이지?"],
     choices: [
-      { text: "루카 군이, 바가스트롬 학생들과 시비가 붙어서…!", reply: "…뭐?", affinityGain: 4, next: "day2_a" },
-      { text: "내일 쪽지 시험이 있는데, 하나도 모르겠어요….", reply: "……하아.", affinityGain: 5, next: "day2_b" }
+      { text: "루카 군이, 바가스트롬 학생들과 시비가 붙어서...!", reply: "...뭐?", affinityGain: 4, next: "day2_a" },
+      { text: "내일 쪽지 시험이 있는데, 하나도 모르겠어요....", reply: "......하아.", affinityGain: 5, next: "day2_b" }
     ]
   },
   day2_a: {
     message: "지금 어디지?",
     choices: [
-      { text: "바가스트롬 격투장이에요!", reply: "…그런 데서 뭐하는 거지? 지금 간다. 기다려.", affinityGain: 2, next: null },
+      { text: "바가스트롬 격투장이에요!", reply: "...그런 데서 뭐하는 거지? 지금 간다. 기다려.", affinityGain: 2, next: null },
       { text: "본관 2층 교실이에요!", reply: "바로 갈 테니 기다려.", affinityGain: 2, next: null }
     ]
   },
   day2_b: {
     message: "내 방으로 와.",
     choices: [
-      { text: "카무라이 씨는 정말 상냥하시네요…!", reply: "칫, 쓸데없는 소릴…….", affinityGain: 3, next: null },
-      { text: "정말 감사합니다! 얼른 갈게요!", reply: "나를 귀찮게 하다니…. 그 정도 각오는 되어 있겠지?", affinityGain: 3, next: null }
+      { text: "카무라이 씨는 정말 상냥하시네요...!", reply: "칫, 쓸데없는 소릴.......", affinityGain: 3, next: null },
+      { text: "정말 감사합니다! 얼른 갈게요!", reply: "나를 귀찮게 하다니.... 그 정도 각오는 되어 있겠지?", affinityGain: 3, next: null }
+    ]
+  },
+  day3_high: {
+    condition: { visits: 3, affinity: 11 },
+    playerFirst: "카무라이 씨 덕분에 시험 성적 잘 받았어요!",
+    message: "...당연한 결과다. 누가 가르친 거라고 생각하는 거지?",
+    choices: [
+      { text: "그래서, 카무라이 씨 드리려고 찻잎을 샀는데요....", reply: "......쓸데없는 짓을.", affinityGain: 5, next: day3_high_a },
+      { text: "그래서, 카무라이 씨께 식사를 대접하고 싶은데요...!", reply: "하?", affinityGain: 5, next: day3_high_b }
+      { text: "그래서, 카무라이 씨께 드리려고 레코드를 구했는데요...!" reply: "레코드라고?", affinityGain: 5, next: day3_high_c }
+    ]
+  },
+  day3_high_a: {
+    message: "가져와. 맛봐 주지.",
+    choices: [
+      { text: "카무라이 씨 방으로 가면 될까요?", reply: "5분 안에 와.", affinityGain: 5, next: null },
+      { text: "카무라이 씨가 제 방으로 오실래요?", reply: "후우....\n봐주는 건 이번만이야.", affinityGain: 5, next: null }
+    ]
+  },
+  day3_high_b: {
+    message: "너 같은 서민이 대체 내게 뭘 대접할 수 있다는 거지?",
+    choices: [
+      { text: "그게, 직접 만들어 드리려고....", reply: "네가 직접?\n...뭐, 솜씨를 맛봐 줄까.", affinityGain: 5, next: null },
+      { text: "제가 친구들이랑 자주 가던 가게가 있는데, 카무라이 씨하고도 같이 가 보고 싶어서....", reply: "...후.\n그래서, 일정은.", affinityGain: 5, next: null }
+      { text: "쇼 군의 푸드트럭에 가 보신 적 있나요? 정말 맛있어요!" reply: "내 하인이면서, 그런 데나 들락거린 거냐?\n식사보다 더 급한 게 있겠는데.", affinityGain: 5, next: null }
+    ]
+  },
+  day3_high_c: {
+    message: "어떤 레코드인데?",
+    choices: [
+      { text: "요한 스트라우스예요! 제가 클래식을 좋아해서.", reply: "......취향이, 나쁘지 않은데.\n가져와.", affinityGain: 5, next: null },
+      { text: "음악은 락이죠!", reply: "집어 치워.\n그런 걸 내가 좋아할 거라고 생각한 건가?", affinityGain: 1, next: null }
+      { text: "<우리 아이용 자장가>라고 하는데요...." reply: "뭐? 그딴 걸 왜 사 온 거냐?", affinityGain: 3, next: null }
+    ]
+  },
+  day3_low: {
+    condition: { visits: 3 },
+    playerFirst: "카무라이 씨, 도와 주셔서 감사합니다...!",
+    message: "앞으로는 그 기숙사와 엮이는 일을 피하도록. 특히 미도는, 가까이하지 마라.",
+    choices: [
+      { text: "그, 그렇지만... 미도 씨는 다정한 분이세요.", reply: "너는 '다정'이 무슨 뜻인지는 알고 쓰는 거냐?\n...됐어. 그만 꺼져.", affinityGain: 0, next: null },
+      { text: "아, 알겠습니다.... 그렇지만 다음 임무는 바가스트롬과 동행 예정이라....", reply: "조심하라는 이야기다.\n특히나 너는 더.", affinityGain: 7, next: null }
     ]
   },
 
-  day3_night: {
-    condition: { visits: 3, hourMin: 22, hourMax: 5 },
-    message: "...이 시간에 왔냐.",
-    choices: [
-      { text: "잠이 안 와서요.", reply: "...그래. 뭐.", affinityGain: 10, next: null },
-      { text: "진 씨 보고 싶었어요.", reply: "...칫. 그런 말 쉽게 하지 마.", affinityGain: 15, next: null }
-    ]
-  },
-  day3: {
-    condition: { visits: 3 },
-    message: "...또 왔냐.",
-    choices: [
-      // 대사 작성 예정
-    ]
-  },
 
   day5_low: {
     condition: { visits: 5, affinity: 0, affinityMax: 29 },
@@ -472,6 +499,8 @@ function selectScript() {
     (visits === 3 && (hour >= 22 || hour <= 5)) ? SCRIPT.day3_night : null,
     (visits >= 5 && affinity >= 30)  ? SCRIPT.day5_high  : null,
     (visits >= 5 && affinity < 30)   ? SCRIPT.day5_low   : null,
+    (visits === 3 && affinity >= 11) ? SCRIPT.day3_high : null,
+    (visits === 3)                   ? SCRIPT.day3_low  : null,
     (visits >= 2 && visits <= 4)     ? SCRIPT.day2       : null,
     (visits === 1)                   ? SCRIPT.day1       : null,
   ];
@@ -511,7 +540,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const script = selectScript();
   if (!script) {
-    appendMsg('char', '...오늘은 이미 얘기했다. 내일 와.', nowTime());
+    appendMsg('char', '...성가시게 굴지 마.', nowTime());
     showDailyLimit();
     return;
   }
