@@ -695,13 +695,13 @@
       position: absolute;
       cursor: pointer;
       border-radius: 8px;
-      background: rgba(176,125,98,0.08);
-      border: 1.5px dashed rgba(176,125,98,0.25);
+      background: transparent;
+      border: none;
       transition: background 0.2s;
     }
 
     .touch-zone:hover {
-      background: rgba(176,125,98,0.22);
+      background: transparent;
     }
 
     .gallery-card-label {
@@ -713,7 +713,8 @@
     /* 대사 말풍선 — fixed 포지션으로 카드 밖 잘림 방지 */
     .speech-bubble {
       position: fixed;
-      background: var(--bg);
+      background: rgba(253, 246, 238, 0.82);
+      backdrop-filter: blur(6px);
       border: 1.5px solid var(--border);
       border-radius: 12px;
       padding: 10px 14px;
@@ -1760,12 +1761,10 @@ let globalBubbleTimer;
 
 function showBubbleAt(x, y, text) {
   globalBubble.textContent = text;
-  // 화면 넘침 방지: 오른쪽 끝에 걸리면 왼쪽으로
-  const bw = 220;
-  const left = (x + bw + 16 > window.innerWidth) ? x - bw - 8 : x + 8;
-  const top  = Math.max(8, y - 60);
-  globalBubble.style.left = left + 'px';
-  globalBubble.style.top  = top  + 'px';
+  globalBubble.style.left = '50%';
+  globalBubble.style.transform = 'translateX(-50%)';
+  globalBubble.style.top = 'auto';
+  globalBubble.style.bottom = '32px';
   globalBubble.classList.add('show');
   clearTimeout(globalBubbleTimer);
   globalBubbleTimer = setTimeout(() => globalBubble.classList.remove('show'), 4000);
