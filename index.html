@@ -646,23 +646,27 @@
       gap: 12px;
     }
 
+    /* 갤러리 그리드 - 세로 배치로 이미지 원본 비율 유지 */
+    .gallery-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .gallery-card {
       background: var(--bg2);
       border: 1px solid var(--border);
       border-radius: 14px;
-      overflow: hidden;
-      cursor: pointer;
+      overflow: visible;
       transition: all 0.2s;
     }
 
     .gallery-card:hover {
-      transform: translateY(-2px);
       box-shadow: 0 6px 20px var(--shadow);
     }
 
     .gallery-card-img {
       width: 100%;
-      aspect-ratio: 3/4;
       background: var(--bg3);
       display: flex;
       align-items: center;
@@ -670,6 +674,20 @@
       font-size: 36px;
       color: var(--text3);
       position: relative;
+      border-radius: 14px 14px 0 0;
+      overflow: hidden;
+    }
+
+    /* 이미지 있을 때 — 원본 비율 그대로 */
+    .gallery-card-img img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* 이미지 없을 때 — 이모지 플레이스홀더 */
+    .gallery-card-img.no-image {
+      aspect-ratio: 3/4;
     }
 
     /* 터치 영역 블록 */
@@ -677,13 +695,13 @@
       position: absolute;
       cursor: pointer;
       border-radius: 8px;
-      background: rgba(176,125,98,0.15);
-      border: 1.5px dashed rgba(176,125,98,0.3);
+      background: rgba(176,125,98,0.08);
+      border: 1.5px dashed rgba(176,125,98,0.25);
       transition: background 0.2s;
     }
 
     .touch-zone:hover {
-      background: rgba(176,125,98,0.3);
+      background: rgba(176,125,98,0.22);
     }
 
     .gallery-card-label {
@@ -692,29 +710,75 @@
       color: var(--text2);
     }
 
-    /* 대사 말풍선 (갤러리 터치용) */
+    /* 대사 말풍선 — fixed 포지션으로 카드 밖 잘림 방지 */
     .speech-bubble {
-      position: absolute;
+      position: fixed;
       background: var(--bg);
       border: 1.5px solid var(--border);
       border-radius: 12px;
-      padding: 8px 12px;
-      font-size: 0.8rem;
+      padding: 10px 14px;
+      font-size: 0.82rem;
       color: var(--text);
-      max-width: 180px;
-      line-height: 1.5;
-      box-shadow: 0 4px 12px var(--shadow);
+      max-width: 220px;
+      line-height: 1.6;
+      box-shadow: 0 4px 16px rgba(100,70,50,0.18);
       opacity: 0;
-      transform: translateY(-4px);
-      transition: all 0.2s;
+      transform: translateY(4px);
+      transition: opacity 0.2s, transform 0.2s;
       pointer-events: none;
-      z-index: 10;
+      z-index: 500;
+      word-break: keep-all;
     }
 
     .speech-bubble.show {
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* 라이트박스 (이미지 원본 크기로 보기) */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(30,20,15,0.85);
+      backdrop-filter: blur(6px);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    #lightbox.active { display: flex; }
+
+    #lightbox img {
+      max-width: 92vw;
+      max-height: 92vh;
+      border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      cursor: default;
+      animation: lbIn 0.25s ease;
+    }
+
+    @keyframes lbIn {
+      from { opacity: 0; transform: scale(0.94); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    #lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      color: #fff;
+      font-size: 1.8rem;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+
+    #lightbox-close:hover { opacity: 1; }
 
     /* 랜덤 대사 카드 */
     .random-card {
@@ -875,8 +939,9 @@
   <div class="container">
     <div class="home-hero">
       <p class="greeting-small">✦ WELCOME ✦</p>
-      <h1>어서 오세요,<br/><span class="name-highlight" id="home-name">특기생</span>님.</h1>
+      <h1>어서 와요,<br/><span class="name-highlight" id="home-name">특기생</span>님.</h1>
       <p class="sub">
+        이곳은 나만을 위한 작은 세계예요.<br/>
         천천히, 마음껏 둘러보세요.
       </p>
     </div>
@@ -960,6 +1025,12 @@
 <!-- 토스트 알림 -->
 <div class="toast" id="toast"></div>
 
+<!-- 라이트박스 (이미지 원본 크기로 보기) -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" />
+</div>
+
 <script>
 /* ==============================================
    ✏️✏️✏️ 여기서부터 내용을 수정하세요! ✏️✏️✏️
@@ -985,24 +1056,24 @@
 const CHARACTERS = [
   {
     id: "char1",
-    name: "카무라이 진",        // ✏️ 이름 바꾸기
-    emoji: "🧊",             // ✏️ 이모지 바꾸기
-    preview: "...뭐야.",       // ✏️ 미리보기 메시지
+    name: "카무라이 진",
+    emoji: "🧊",
+    preview: "...뭐야.",
     visitThreshold: 10,
   },
   {
     id: "char2",
-    name: "시라나미 렌",        // ✏️ 이름 바꾸기
-    emoji: "🐙",             // ✏️ 이모지 바꾸기
-    preview: "...선배.",    // ✏️ 미리보기 메시지
+    name: "시라나미 렌",
+    emoji: "🐙",
+    preview: "...선배.",
     visitThreshold: 10,
   },
   {
     id: "char3",
-    name: "키리사키 지로",        // ✏️ 이름 바꾸기
-    emoji: "💊",             // ✏️ 이모지 바꾸기
-    preview: "아, 당신인가요.",       // ✏️ 미리보기 메시지
-    visitThreshold: 10,       // 3번째 방문부터 선톡
+    name: "키리사키 지로",
+    emoji: "💊",
+    preview: "아, 당신인가요.",
+    visitThreshold: 10,
   },
 ];
 
@@ -1165,14 +1236,14 @@ const PROACTIVE_MSGS = [
 const TOUCH_ITEMS = [
   {
     title: "온천 지로",  // ✏️ 제목
-    image: "img/jirooc.jpg",             // ✏️ "일러스트1.jpg" 이런 식으로 파일명 입력
+    image: "img/jirooc.jpg",
     emoji: "🌸",             // image 없을 때 대신 보여줄 이모지
     zones: [
       {
         top: "57%", left: "73%", width: "15%", height: "15%",
         lines: [            // ✏️ 대사 수정
           "손이 예쁘다고요? ...뭐, 그렇습니까.",
-          "<span class='name-highlight' id='home-name'>당신</span>, 손이 굉장히... 작네요.",
+          "당신, 손이 굉장히... 작네요.",
         ]
       },
       {
@@ -1192,19 +1263,19 @@ const TOUCH_ITEMS = [
         lines: [
           "저녁 식사 말인가요. 당신이 먹여 주면 조금은 먹을 수 있겠지만.... 먹여 주실 건가요?",
         ]
-      },      
+      },
       {
         top: "15%", left: "35%", width: "20%", height: "8%",
         lines: [
           "만져보고 싶은가요? 뭐, 알겠습니다. 여기요.",
         ]
-      },      
+      },
       {
         top: "65%", left: "10%", width: "30%", height: "34%",
         lines: [
           "당신, 얼굴이 빨갛네요. 열이 있는 겁니까? 검진을.... ......옷이나 제대로 입으라고요?",
         ]
-      },      
+      },
     ]
   },
   {
@@ -1680,6 +1751,26 @@ function openChatFromNotif() {
 /* =============================================
    🖼️ 갤러리 - 터치 대사
 ============================================= */
+
+// 전역 말풍선 (DOM에 하나만 두고 위치를 JS로 조정)
+const globalBubble = document.createElement('div');
+globalBubble.className = 'speech-bubble';
+document.body.appendChild(globalBubble);
+let globalBubbleTimer;
+
+function showBubbleAt(x, y, text) {
+  globalBubble.textContent = text;
+  // 화면 넘침 방지: 오른쪽 끝에 걸리면 왼쪽으로
+  const bw = 220;
+  const left = (x + bw + 16 > window.innerWidth) ? x - bw - 8 : x + 8;
+  const top  = Math.max(8, y - 60);
+  globalBubble.style.left = left + 'px';
+  globalBubble.style.top  = top  + 'px';
+  globalBubble.classList.add('show');
+  clearTimeout(globalBubbleTimer);
+  globalBubbleTimer = setTimeout(() => globalBubble.classList.remove('show'), 4000);
+}
+
 function buildTouchGallery() {
   const grid = document.getElementById('touch-gallery');
   grid.innerHTML = '';
@@ -1694,34 +1785,37 @@ function buildTouchGallery() {
     if (item.image) {
       const img = document.createElement('img');
       img.src = item.image;
-      img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
+      img.alt = item.title;
+      // 이미지 클릭 → 라이트박스
+      img.style.cursor = 'zoom-in';
+      img.onclick = (e) => {
+        e.stopPropagation();
+        openLightbox(item.image);
+      };
       imgDiv.appendChild(img);
+
+      // 이미지 로드 후 터치존 위치 재계산이 필요없도록
+      // zone 좌표는 % 기준이라 그대로 동작함
     } else {
+      imgDiv.classList.add('no-image');
       imgDiv.textContent = item.emoji || '🖼️';
     }
 
-    // 터치 영역 + 말풍선 추가
-    item.zones.forEach((zone, zi) => {
+    // 터치 영역 추가
+    item.zones.forEach((zone) => {
       const zoneDiv = document.createElement('div');
       zoneDiv.className = 'touch-zone';
-      zoneDiv.style.cssText = `top:${zone.top};left:${zone.left};width:${zone.width};height:${zone.height};`;
+      zoneDiv.style.cssText =
+        `top:${zone.top};left:${zone.left};width:${zone.width};height:${zone.height};`;
 
-      const bubble = document.createElement('div');
-      bubble.className = 'speech-bubble';
-      bubble.style.cssText = 'bottom:105%;left:0;';
-
-      let bubbleTimer;
       zoneDiv.onclick = (e) => {
         e.stopPropagation();
         const line = zone.lines[Math.floor(Math.random() * zone.lines.length)];
         const name = getUserName();
-        bubble.textContent = line.replace(/\{이름\}/g, name);
-        bubble.classList.add('show');
-        clearTimeout(bubbleTimer);
-        bubbleTimer = setTimeout(() => bubble.classList.remove('show'), 3000);
+        const text = line.replace(/\{이름\}/g, name);
+        showBubbleAt(e.clientX, e.clientY, text);
       };
 
-      zoneDiv.appendChild(bubble);
       imgDiv.appendChild(zoneDiv);
     });
 
@@ -1733,6 +1827,18 @@ function buildTouchGallery() {
     card.appendChild(label);
     grid.appendChild(card);
   });
+}
+
+// 라이트박스
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
 }
 
 /* =============================================
