@@ -1236,7 +1236,8 @@ const PROACTIVE_MSGS = [
 ============================================= */
 const TOUCH_ITEMS = [
   {
-    title: "온천 지로",  // ✏️ 제목
+    <details>
+    title: <summary>"온천 지로"</summary>,  // ✏️ 제목
     image: "img/jirooc.jpg",
     emoji: "🌸",             // image 없을 때 대신 보여줄 이모지
     zones: [
@@ -1277,10 +1278,12 @@ const TOUCH_ITEMS = [
           "당신, 얼굴이 빨갛네요. 열이 있는 겁니까? 검진을.... ......옷이나 제대로 입으라고요?",
         ]
       },
-    ]
+  </details>
+  ]
   },
 {
-  title: "웨딩 하루 항마의 패",      // ✏️ 제목
+  <details>
+  title: <summary>"웨딩 하루 항마의 패"</summary>,      // ✏️ 제목
   image: "img/haruwdw.jpg",
   emoji: "🖼️",
   zones: [
@@ -1324,7 +1327,8 @@ const TOUCH_ITEMS = [
         ]
       }
   ]
-},
+    </details>
+    },
 ];
 
 /* =============================================
@@ -1843,13 +1847,29 @@ function buildTouchGallery() {
       imgDiv.appendChild(zoneDiv);
     });
 
-    const label = document.createElement('div');
-    label.className = 'gallery-card-label';
-    label.textContent = item.title;
+const details = document.createElement('details');
+const summary = document.createElement('summary');
+summary.textContent = item.title;
+summary.style.cssText = `
+  padding: 14px 16px;
+  font-size: 0.85rem;
+  color: var(--text2);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+summary.innerHTML = `<span style="color:var(--accent)">▸</span> ${item.title}`;
 
-    card.appendChild(imgDiv);
-    card.appendChild(label);
-    grid.appendChild(card);
+details.addEventListener('toggle', () => {
+  summary.querySelector('span').textContent = details.open ? '▾' : '▸';
+});
+
+details.appendChild(summary);
+details.appendChild(imgDiv);
+card.appendChild(details);
+grid.appendChild(card);
   });
 }
 
