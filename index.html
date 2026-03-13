@@ -1816,12 +1816,6 @@ function buildTouchGallery() {
       const img = document.createElement('img');
       img.src = item.image;
       img.alt = item.title;
-      // 이미지 클릭 → 라이트박스
-      img.style.cursor = 'zoom-in';
-      img.onclick = (e) => {
-        e.stopPropagation();
-        openLightbox(item.image);
-      };
       imgDiv.appendChild(img);
 
       // 이미지 로드 후 터치존 위치 재계산이 필요없도록
